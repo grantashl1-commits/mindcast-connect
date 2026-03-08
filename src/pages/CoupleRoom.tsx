@@ -1,29 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import AnimatedSection from "@/components/AnimatedSection";
-import { ArrowRight, MessageSquare, Clock, Heart } from "lucide-react";
-
-const sharedCards = [
-  {
-    from: "YOU",
-    time: "2 hours ago",
-    sections: [
-      { label: "SITUATION", text: "We had a disagreement about how household tasks are divided." },
-      { label: "FEELINGS", text: "I felt frustrated, unheard, and a bit resentful." },
-      { label: "NEEDS", text: "I need acknowledgement and a more structured way to divide tasks." },
-      { label: "REQUEST", text: "I'd like us to create a shared task list together this weekend." },
-    ],
-  },
-  {
-    from: "PARTNER",
-    time: "45 minutes ago",
-    sections: [
-      { label: "SITUATION", text: "The same conversation about chores. I felt caught off guard." },
-      { label: "FEELINGS", text: "Defensive at first, then guilty. I know I could do more." },
-      { label: "REQUEST", text: "Can we talk about it without blame? I want to fix this." },
-    ],
-  },
-];
+import { ArrowRight, Shield, Loader2, CheckCircle, Heart, Clock, MessageSquare } from "lucide-react";
+import { useAppContext } from "@/contexts/AppContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const acknowledgements = [
   { label: "I hear this", icon: Heart },
@@ -32,50 +13,89 @@ const acknowledgements = [
 ];
 
 const CoupleRoom = () => {
+  const { sharedCards, mode } = useAppContext();
+  const { toast } = useToast();
   const [acks, setAcks] = useState<Record<string, string>>({});
+  const [partnerAResponse, setPartnerAResponse] = useState<Record<string, string>>({});
+  const [partnerBResponse, setPartnerBResponse] = useState<Record<string, string>>({});
+  const [submittedA, setSubmittedA] = useState<Record<string, boolean>>({});
+  const [submittedB, setSubmittedB] = useState<Record<string, boolean>>({});
+  const [nextStep, setNextStep] = useState<{ next_step: string; timeframe: string } | null>(null);
+  const [loadingStep, setLoadingStep] = useState(false);
+  const [committed, setCommitted] = useState(false);
 
-  const handleAck = (cardFrom: string, ackLabel: string) => {
-    setAcks((prev) => ({ ...prev, [cardFrom]: ackLabel }));
+  const partnerALabel = mode === "family" ? "PARENT" : "PARTNER A";
+  const partnerBLabel = mode === "family" ? "TEEN" : "PARTNER B";
+
+  const allBSubmitted = sharedCards.length > 0 && sharedCards.every((c) => submittedB[c.key]);
+
+  const getNextStep = async () => {
+    setLoadingStep(true);
+    try {
+      const summary = sharedCards
+        .map((c) => `[${c.label}]: ${c.text}\n${partnerALabel} response: ${partnerAResponse[c.key] || ""}\n${partnerBLabel} response: ${partnerBResponse[c.key] || ""}`)
+        .join("\n\n");
+
+      const { data, error } = await supabase.functions.invoke("reflect", {
+        body: { journal_entry: summary, mode, action: "next_step" },
+      });
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+      setNextStep(data);
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message || "Failed to get next step.", variant: "destructive" });
+    } finally {
+      setLoadingStep(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-primary pt-16">
+    <div className="min-h-screen bg-primary pt-16 relative">
+      {/* Safety exit */}
+      <Link
+        to="/safety"
+        className="fixed top-20 right-4 z-50 heading-label text-[9px] bg-destructive text-destructive-foreground px-4 py-2 flex items-center gap-2 hover:opacity-90 transition-opacity"
+      >
+        <Shield size={12} /> EXIT SAFELY
+      </Link>
+
       <div className="container mx-auto px-6 py-12 lg:py-20 max-w-3xl">
         <AnimatedSection>
           <p className="heading-label text-[10px] text-silver mb-2">SHARED SPACE</p>
           <h1 className="heading-display text-3xl lg:text-5xl text-primary-foreground mb-4">COUPLE ROOM</h1>
           <p className="font-body text-silver leading-relaxed mb-8">
-            Only approved reflections appear here. Read your partner's share card and acknowledge before responding.
+            Only approved reflections appear here. Read each card and respond in turn.
           </p>
         </AnimatedSection>
 
-        <div className="space-y-6">
-          {sharedCards.map((card) => (
-            <AnimatedSection key={card.from}>
-              <div className="card-bordered-white p-6 lg:p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <span className="heading-label text-xs text-primary-foreground">{card.from}</span>
-                  <span className="font-body text-silver text-xs">{card.time}</span>
-                </div>
-                <div className="space-y-4">
-                  {card.sections.map((s) => (
-                    <div key={s.label}>
-                      <span className="heading-label text-[9px] text-silver">{s.label}</span>
-                      <p className="font-body text-primary-foreground/90 text-sm leading-relaxed mt-1">{s.text}</p>
-                    </div>
-                  ))}
-                </div>
+        {sharedCards.length === 0 ? (
+          <AnimatedSection>
+            <div className="card-bordered-white p-8 text-center">
+              <p className="font-body text-silver mb-4">No shared cards yet. Start by writing in your journal.</p>
+              <Link
+                to="/journal"
+                className="heading-label text-sm bg-primary-foreground text-primary px-8 py-4 hover:bg-silver transition-colors inline-flex items-center gap-3"
+              >
+                GO TO JOURNAL <ArrowRight size={16} />
+              </Link>
+            </div>
+          </AnimatedSection>
+        ) : (
+          <div className="space-y-6">
+            {sharedCards.map((card) => (
+              <AnimatedSection key={card.key}>
+                <div className="card-bordered-white p-6 lg:p-8">
+                  <span className="heading-label text-[10px] text-primary-foreground mb-3 block">{card.label}</span>
+                  <p className="font-body text-silver text-sm leading-relaxed mb-4">{card.text}</p>
 
-                {/* Acknowledgement chips */}
-                <div className="mt-6 pt-4 border-t border-silver/10">
-                  <p className="heading-label text-[9px] text-silver mb-3">ACKNOWLEDGE</p>
-                  <div className="flex flex-wrap gap-2">
+                  {/* Acknowledgement chips */}
+                  <div className="flex flex-wrap gap-2 mb-6">
                     {acknowledgements.map((a) => (
                       <button
                         key={a.label}
-                        onClick={() => handleAck(card.from, a.label)}
+                        onClick={() => setAcks((prev) => ({ ...prev, [card.key]: a.label }))}
                         className={`heading-label text-[9px] px-4 py-2 flex items-center gap-2 transition-colors ${
-                          acks[card.from] === a.label
+                          acks[card.key] === a.label
                             ? "bg-primary-foreground text-primary"
                             : "border border-silver/30 text-silver hover:border-silver"
                         }`}
@@ -85,22 +105,95 @@ const CoupleRoom = () => {
                       </button>
                     ))}
                   </div>
-                </div>
-              </div>
-            </AnimatedSection>
-          ))}
-        </div>
 
-        <AnimatedSection>
-          <div className="mt-10 text-center">
-            <Link
-              to="/guided-conversation"
-              className="heading-label text-sm bg-primary-foreground text-primary px-10 py-4 hover:bg-silver transition-colors inline-flex items-center gap-3"
-            >
-              START GUIDED CONVERSATION <ArrowRight size={16} />
-            </Link>
+                  {/* Guided Conversation: Partner A */}
+                  <div className="border-t border-silver/10 pt-4 mt-4">
+                    <span className="heading-label text-[9px] text-silver mb-2 block">{partnerALabel} RESPONSE</span>
+                    {!submittedA[card.key] ? (
+                      <div className="space-y-3">
+                        <textarea
+                          value={partnerAResponse[card.key] || ""}
+                          onChange={(e) => setPartnerAResponse((p) => ({ ...p, [card.key]: e.target.value }))}
+                          placeholder="Share your perspective..."
+                          className="w-full bg-navy-light text-primary-foreground font-body text-sm p-4 focus:outline-none min-h-[80px] resize-none border border-silver/10"
+                        />
+                        <button
+                          onClick={() => setSubmittedA((p) => ({ ...p, [card.key]: true }))}
+                          disabled={!partnerAResponse[card.key]?.trim()}
+                          className="heading-label text-[9px] bg-primary-foreground text-primary px-6 py-2 hover:bg-silver transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          SUBMIT
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="font-body text-silver/80 text-sm mb-4">{partnerAResponse[card.key]}</p>
+                        {/* Partner B */}
+                        <span className="heading-label text-[9px] text-silver mb-2 block">{partnerBLabel} RESPONSE</span>
+                        {!submittedB[card.key] ? (
+                          <div className="space-y-3">
+                            <textarea
+                              value={partnerBResponse[card.key] || ""}
+                              onChange={(e) => setPartnerBResponse((p) => ({ ...p, [card.key]: e.target.value }))}
+                              placeholder="Share your perspective..."
+                              className="w-full bg-navy-light text-primary-foreground font-body text-sm p-4 focus:outline-none min-h-[80px] resize-none border border-silver/10"
+                            />
+                            <button
+                              onClick={() => setSubmittedB((p) => ({ ...p, [card.key]: true }))}
+                              disabled={!partnerBResponse[card.key]?.trim()}
+                              className="heading-label text-[9px] bg-primary-foreground text-primary px-6 py-2 hover:bg-silver transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                              SUBMIT
+                            </button>
+                          </div>
+                        ) : (
+                          <p className="font-body text-silver/80 text-sm">{partnerBResponse[card.key]}</p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              </AnimatedSection>
+            ))}
+
+            {/* Next step */}
+            {allBSubmitted && !nextStep && (
+              <AnimatedSection>
+                <div className="text-center mt-8">
+                  <button
+                    onClick={getNextStep}
+                    disabled={loadingStep}
+                    className="heading-label text-sm bg-primary-foreground text-primary px-10 py-4 hover:bg-silver transition-colors inline-flex items-center gap-3"
+                  >
+                    {loadingStep ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />}
+                    GET GUIDED NEXT STEP
+                  </button>
+                </div>
+              </AnimatedSection>
+            )}
+
+            {nextStep && (
+              <AnimatedSection>
+                <div className="card-bordered-white p-8 text-center">
+                  <CheckCircle size={32} className="text-primary-foreground mx-auto mb-4" />
+                  <span className="heading-label text-[10px] text-silver mb-3 block">YOUR NEXT STEP</span>
+                  <p className="font-heading font-bold text-xl text-primary-foreground mb-2">{nextStep.next_step}</p>
+                  <p className="font-body text-silver text-sm mb-6">Timeframe: {nextStep.timeframe}</p>
+                  {!committed ? (
+                    <button
+                      onClick={() => setCommitted(true)}
+                      className="heading-label text-sm bg-primary-foreground text-primary px-10 py-4 hover:bg-silver transition-colors"
+                    >
+                      WE COMMIT TO THIS
+                    </button>
+                  ) : (
+                    <p className="heading-label text-[10px] text-primary-foreground">✓ COMMITTED</p>
+                  )}
+                </div>
+              </AnimatedSection>
+            )}
           </div>
-        </AnimatedSection>
+        )}
       </div>
     </div>
   );

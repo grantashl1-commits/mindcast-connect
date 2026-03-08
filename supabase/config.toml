@@ -1,0 +1,4 @@
+project_id = "idrzpiklzsmsuxpoezdf"
+
+[functions.reflect]
+verify_jwt = false

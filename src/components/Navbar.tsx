@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Users, Home as HomeIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAppContext } from "@/contexts/AppContext";
 
 const navLinks = [
   { label: "HOME", path: "/" },
@@ -16,6 +17,9 @@ const navLinks = [
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const { mode, setMode } = useAppContext();
+
+  const toggleMode = () => setMode(mode === "partnership" ? "family" : "partnership");
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-primary/95 backdrop-blur-sm border-b border-silver/20">
@@ -25,7 +29,16 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop */}
-        <div className="hidden lg:flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-6">
+          {/* Mode toggle */}
+          <button
+            onClick={toggleMode}
+            className="heading-label text-[8px] px-3 py-1 border border-silver/30 text-silver hover:text-primary-foreground hover:border-primary-foreground transition-colors flex items-center gap-2"
+          >
+            {mode === "partnership" ? <Users size={10} /> : <HomeIcon size={10} />}
+            {mode === "partnership" ? "PARTNERSHIP" : "FAMILY"}
+          </button>
+
           {navLinks.map((l) => (
             <Link
               key={l.path}
@@ -61,6 +74,13 @@ const Navbar = () => {
             className="lg:hidden bg-primary overflow-hidden"
           >
             <div className="flex flex-col px-6 pb-6 gap-4">
+              <button
+                onClick={toggleMode}
+                className="heading-label text-[10px] px-4 py-2 border border-silver/30 text-silver hover:text-primary-foreground transition-colors flex items-center gap-2 w-fit"
+              >
+                {mode === "partnership" ? <Users size={10} /> : <HomeIcon size={10} />}
+                {mode === "partnership" ? "PARTNERSHIP" : "FAMILY"}
+              </button>
               {navLinks.map((l) => (
                 <Link
                   key={l.path}
