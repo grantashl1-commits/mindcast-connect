@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Nunito:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,65 +6,127 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 215 50% 11%;
+    /* Partner A — The Blue System */
+    --partner-a-primary: 212 40% 80%;
+    --partner-a-secondary: 40 50% 96%;
+    --partner-a-dark: 210 30% 24%;
+    --partner-a-accent: 213 30% 67%;
+    --partner-a-text-light: 210 30% 24%;
+    --partner-a-text-dark: 40 50% 96%;
+
+    /* Partner B — The Lilac System */
+    --partner-b-primary: 272 30% 83%;
+    --partner-b-secondary: 30 30% 96%;
+    --partner-b-dark: 276 28% 23%;
+    --partner-b-accent: 268 25% 70%;
+    --partner-b-text-light: 276 28% 23%;
+    --partner-b-text-dark: 30 30% 96%;
+
+    /* Shared Space */
+    --shared-bg: 35 25% 95%;
+    --shared-text: 0 0% 17%;
+
+    /* Active partner (default: A) — dynamically swapped */
+    --active-primary: var(--partner-a-primary);
+    --active-secondary: var(--partner-a-secondary);
+    --active-dark: var(--partner-a-dark);
+    --active-accent: var(--partner-a-accent);
+
+    /* Design system tokens */
+    --background: var(--partner-a-secondary);
+    --foreground: var(--partner-a-text-light);
 
     --card: 0 0% 100%;
-    --card-foreground: 215 50% 11%;
+    --card-foreground: var(--partner-a-text-light);
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 50% 11%;
+    --popover-foreground: var(--partner-a-text-light);
 
-    --primary: 215 50% 11%;
-    --primary-foreground: 0 0% 100%;
+    --primary: var(--active-primary);
+    --primary-foreground: var(--active-dark);
 
-    --secondary: 216 14% 76%;
-    --secondary-foreground: 215 50% 11%;
+    --secondary: var(--active-accent);
+    --secondary-foreground: var(--active-dark);
 
-    --muted: 216 14% 93%;
-    --muted-foreground: 215 20% 46%;
+    --muted: 35 20% 93%;
+    --muted-foreground: 210 10% 46%;
 
-    --accent: 216 14% 76%;
-    --accent-foreground: 215 50% 11%;
+    --accent: var(--active-accent);
+    --accent-foreground: var(--active-dark);
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 65% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 216 14% 76%;
-    --input: 216 14% 86%;
-    --ring: 215 50% 11%;
+    --border: var(--active-accent);
+    --input: 35 20% 90%;
+    --ring: var(--active-accent);
 
-    --radius: 0px;
+    --radius: 20px;
 
-    /* MINDCAST custom tokens */
-    --navy: 215 50% 11%;
-    --silver: 216 14% 76%;
-    --navy-light: 215 40% 18%;
-    --silver-light: 216 14% 93%;
+    /* Shape tokens */
+    --radius-card: 20px;
+    --radius-button: 14px;
+    --radius-input: 12px;
+    --radius-chip: 8px;
 
-    --font-heading: 'Montserrat', sans-serif;
-    --font-body: 'Inter', sans-serif;
+    /* Shadow tokens */
+    --shadow-soft: 0 4px 24px rgba(0,0,0,0.06);
+    --shadow-medium: 0 8px 40px rgba(0,0,0,0.10);
+    --shadow-subtle: 0 2px 12px rgba(0,0,0,0.04);
 
-    --border-thick: 4px;
+    /* Transition token */
+    --transition-gentle: 350ms ease-in-out;
 
-    --sidebar-background: 215 50% 11%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 215 50% 11%;
-    --sidebar-accent: 215 40% 18%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 216 14% 76%;
-    --sidebar-ring: 216 14% 76%;
+    /* Font tokens */
+    --font-heading: 'Lora', serif;
+    --font-body: 'Nunito', sans-serif;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: var(--shared-text);
+    --sidebar-primary: var(--active-primary);
+    --sidebar-primary-foreground: var(--active-dark);
+    --sidebar-accent: var(--active-accent);
+    --sidebar-accent-foreground: var(--active-dark);
+    --sidebar-border: var(--active-accent);
+    --sidebar-ring: var(--active-accent);
+  }
+
+  /* Partner B active override */
+  .partner-b-active {
+    --active-primary: var(--partner-b-primary);
+    --active-secondary: var(--partner-b-secondary);
+    --active-dark: var(--partner-b-dark);
+    --active-accent: var(--partner-b-accent);
+    --background: var(--partner-b-secondary);
+    --foreground: var(--partner-b-text-light);
+    --card-foreground: var(--partner-b-text-light);
+    --primary: var(--partner-b-primary);
+    --primary-foreground: var(--partner-b-dark);
+    --secondary: var(--partner-b-accent);
+    --secondary-foreground: var(--partner-b-dark);
+    --accent: var(--partner-b-accent);
+    --accent-foreground: var(--partner-b-dark);
+    --border: var(--partner-b-accent);
+    --ring: var(--partner-b-accent);
+  }
+
+  /* Shared space override */
+  .shared-space {
+    --background: var(--shared-bg);
+    --foreground: var(--shared-text);
+    --card-foreground: var(--shared-text);
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border/40;
   }
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
@@ -72,33 +134,211 @@
 }
 
 @layer components {
-  .section-navy {
-    @apply bg-primary text-primary-foreground;
+  /* Gentle card */
+  .card-warm {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--active-accent) / 0.3);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 28px;
+    transition: box-shadow var(--transition-gentle), transform var(--transition-gentle);
   }
-  .section-white {
-    @apply bg-background text-foreground;
+  .card-warm:hover {
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-2px);
+  }
+
+  /* Partner-specific cards */
+  .card-partner-a {
+    background: hsl(var(--partner-a-secondary));
+    border: 1px solid hsl(var(--partner-a-accent) / 0.3);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+  }
+  .card-partner-b {
+    background: hsl(var(--partner-b-secondary));
+    border: 1px solid hsl(var(--partner-b-accent) / 0.3);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* Heading styles — warm, literary */
+  .heading-warm {
+    font-family: var(--font-heading);
+    @apply font-semibold italic;
+    line-height: 1.5;
+    color: hsl(var(--foreground));
+  }
+
+  /* Section label — gentle, lowercase */
+  .label-gentle {
+    font-family: var(--font-body);
+    @apply font-semibold text-[11px] tracking-[0.15em] lowercase;
+    color: hsl(var(--active-accent));
+  }
+
+  /* Emotional text — for AI content, prompts */
+  .text-emotional {
+    font-family: var(--font-heading);
+    @apply italic text-lg;
+    line-height: 1.7;
+    color: hsl(var(--foreground));
+  }
+
+  /* Button base */
+  .btn-warm {
+    font-family: var(--font-body);
+    @apply font-bold text-sm;
+    border-radius: var(--radius-button);
+    padding: 12px 28px;
+    transition: all var(--transition-gentle);
+  }
+  .btn-warm:active {
+    transform: scale(0.97);
+  }
+
+  .btn-primary {
+    background: hsl(var(--active-primary));
+    color: hsl(var(--active-dark));
+  }
+  .btn-primary:hover {
+    opacity: 0.9;
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1.5px solid hsl(var(--active-accent));
+    color: hsl(var(--active-dark));
+  }
+  .btn-outline:hover {
+    background: hsl(var(--active-accent) / 0.1);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: hsl(var(--muted-foreground));
+  }
+  .btn-ghost:hover {
+    color: hsl(var(--foreground));
+  }
+
+  /* Input warm */
+  .input-warm {
+    background: hsl(40 40% 98%);
+    border: 1px solid hsl(var(--active-accent) / 0.25);
+    border-radius: var(--radius-input);
+    font-family: var(--font-body);
+    @apply text-base;
+    padding: 14px 18px;
+    transition: border-color var(--transition-gentle), box-shadow var(--transition-gentle);
+    color: hsl(var(--foreground));
+  }
+  .input-warm::placeholder {
+    font-family: var(--font-heading);
+    @apply italic;
+    color: hsl(var(--muted-foreground) / 0.5);
+  }
+  .input-warm:focus {
+    outline: none;
+    border-color: hsl(var(--active-accent));
+    box-shadow: 0 0 0 4px hsl(var(--active-accent) / 0.15);
+  }
+
+  /* Journal textarea */
+  .textarea-journal {
+    background: hsl(45 50% 99%);
+    border: 1px solid hsl(var(--active-accent) / 0.15);
+    border-radius: var(--radius-card);
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.03);
+    font-family: var(--font-heading);
+    @apply italic text-lg;
+    line-height: 1.7;
+    padding: 28px;
+    color: hsl(var(--foreground));
+    transition: border-color var(--transition-gentle), box-shadow var(--transition-gentle);
+    resize: none;
+  }
+  .textarea-journal::placeholder {
+    color: hsl(var(--muted-foreground) / 0.4);
+  }
+  .textarea-journal:focus {
+    outline: none;
+    border-color: hsl(var(--active-accent));
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.03), 0 0 0 4px hsl(var(--active-accent) / 0.12);
+  }
+
+  /* Pulsing dots loader */
+  .dots-loader {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    align-items: center;
+  }
+  .dots-loader span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: hsl(var(--active-accent));
+    animation: pulse-dot 1.4s ease-in-out infinite;
+  }
+  .dots-loader span:nth-child(2) { animation-delay: 0.2s; }
+  .dots-loader span:nth-child(3) { animation-delay: 0.4s; }
+
+  /* Decorative wash */
+  .wash-a {
+    position: fixed;
+    top: -100px;
+    right: -100px;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, hsl(var(--partner-a-primary) / 0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .wash-b {
+    position: fixed;
+    top: -100px;
+    left: -100px;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, hsl(var(--partner-b-primary) / 0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Commitment gradient button */
+  .btn-commit {
+    background: linear-gradient(135deg, hsl(var(--partner-a-primary)), hsl(var(--partner-b-primary)));
+    color: hsl(var(--shared-text));
+    font-family: var(--font-heading);
+    @apply italic font-semibold text-base;
+    border-radius: var(--radius-button);
+    padding: 16px 32px;
+    transition: all var(--transition-gentle);
+    width: 100%;
+  }
+  .btn-commit:hover {
+    opacity: 0.92;
+  }
+  .btn-commit:active {
+    transform: scale(0.97);
+  }
+
+  /* Legacy compat — map old classes */
+  .heading-label {
+    font-family: var(--font-body);
+    @apply font-semibold text-[11px] tracking-[0.15em];
   }
   .heading-display {
     font-family: var(--font-heading);
-    @apply font-black uppercase tracking-tight leading-none;
+    @apply font-semibold italic;
+    line-height: 1.4;
   }
-  .heading-label {
-    font-family: var(--font-heading);
-    @apply text-xs font-bold uppercase tracking-[0.3em];
-  }
-  .card-bordered {
-    border: var(--border-thick) solid hsl(var(--primary));
-  }
-  .card-bordered-white {
-    border: var(--border-thick) solid hsl(var(--primary-foreground));
-  }
-  .text-silver {
-    color: hsl(var(--silver));
-  }
-  .bg-navy {
-    background-color: hsl(var(--navy));
-  }
-  .bg-navy-light {
-    background-color: hsl(var(--navy-light));
-  }
+}
+
+@keyframes pulse-dot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
 }
