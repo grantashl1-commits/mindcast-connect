@@ -187,7 +187,7 @@ const CoupleRoom = () => {
                       WE COMMIT TO THIS
                     </button>
                   ) : (
-                    <p className="heading-label text-[10px] text-green-400">✓ COMMITTED</p>
+                    <p className="heading-label text-[10px] text-primary-foreground">✓ COMMITTED</p>
                   )}
                 </div>
               </AnimatedSection>
