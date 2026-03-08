@@ -1,44 +1,49 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Users, Home as HomeIcon } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppContext } from "@/contexts/AppContext";
-
-const navLinks = [
-  { label: "HOME", path: "/" },
-  { label: "HOW IT WORKS", path: "/#how-it-works" },
-  { label: "MODULES", path: "/modules" },
-  { label: "COUPLE SPACE", path: "/couple-room" },
-  { label: "PROGRESS", path: "/check-in" },
-  { label: "MEMBERSHIP", path: "/membership" },
-  { label: "SAFETY", path: "/safety" },
-];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
-  const { mode, setMode } = useAppContext();
+  const navigate = useNavigate();
+  const { activePartner, setup, logout } = useAppContext();
 
-  const toggleMode = () => setMode(mode === "partnership" ? "family" : "partnership");
+  const isLoggedIn = !!activePartner && !!setup;
+  const dashboardPath = activePartner === "A" ? "/dashboard-a" : "/dashboard-b";
+  const partnerName = isLoggedIn
+    ? activePartner === "A" ? setup.partnerA.name : setup.partnerB.name
+    : "";
+
+  const navLinks = isLoggedIn
+    ? [
+        { label: "MY SPACE", path: dashboardPath },
+        { label: "COUPLE ROOM", path: "/couple-room" },
+        { label: "MODULES", path: "/modules" },
+        { label: "SAFETY", path: "/safety" },
+      ]
+    : [
+        { label: "HOME", path: "/" },
+        { label: "MODULES", path: "/modules" },
+        { label: "SAFETY", path: "/safety" },
+      ];
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+    setOpen(false);
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-primary/95 backdrop-blur-sm border-b border-silver/20">
       <div className="container mx-auto flex items-center justify-between h-16 px-6">
-        <Link to="/" className="font-heading font-black text-primary-foreground tracking-[0.15em] text-lg">
+        <Link to={isLoggedIn ? dashboardPath : "/"} className="font-heading font-black text-primary-foreground tracking-[0.15em] text-lg">
           MINDCAST<span className="text-silver font-medium text-sm ml-1 tracking-[0.2em]">RELATIONSHIPS</span>
         </Link>
 
         {/* Desktop */}
         <div className="hidden lg:flex items-center gap-6">
-          {/* Mode toggle */}
-          <button
-            onClick={toggleMode}
-            className="heading-label text-[8px] px-3 py-1 border border-silver/30 text-silver hover:text-primary-foreground hover:border-primary-foreground transition-colors flex items-center gap-2"
-          >
-            {mode === "partnership" ? <Users size={10} /> : <HomeIcon size={10} />}
-            {mode === "partnership" ? "PARTNERSHIP" : "FAMILY"}
-          </button>
-
           {navLinks.map((l) => (
             <Link
               key={l.path}
@@ -50,21 +55,30 @@ const Navbar = () => {
               {l.label}
             </Link>
           ))}
-          <Link
-            to="/journal"
-            className="heading-label text-[10px] bg-primary-foreground text-primary px-5 py-2 hover:bg-silver transition-colors"
-          >
-            SIGN IN
-          </Link>
+          {isLoggedIn ? (
+            <div className="flex items-center gap-3">
+              <span className="heading-label text-[9px] text-silver border border-silver/30 px-3 py-1">
+                {partnerName.toUpperCase()}
+              </span>
+              <button onClick={handleLogout} className="text-silver hover:text-primary-foreground transition-colors">
+                <LogOut size={16} />
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/"
+              className="heading-label text-[10px] bg-primary-foreground text-primary px-5 py-2 hover:bg-silver transition-colors"
+            >
+              SIGN IN
+            </Link>
+          )}
         </div>
 
-        {/* Mobile toggle */}
         <button onClick={() => setOpen(!open)} className="lg:hidden text-primary-foreground">
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
-      {/* Mobile menu */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -74,13 +88,6 @@ const Navbar = () => {
             className="lg:hidden bg-primary overflow-hidden"
           >
             <div className="flex flex-col px-6 pb-6 gap-4">
-              <button
-                onClick={toggleMode}
-                className="heading-label text-[10px] px-4 py-2 border border-silver/30 text-silver hover:text-primary-foreground transition-colors flex items-center gap-2 w-fit"
-              >
-                {mode === "partnership" ? <Users size={10} /> : <HomeIcon size={10} />}
-                {mode === "partnership" ? "PARTNERSHIP" : "FAMILY"}
-              </button>
               {navLinks.map((l) => (
                 <Link
                   key={l.path}
@@ -91,13 +98,14 @@ const Navbar = () => {
                   {l.label}
                 </Link>
               ))}
-              <Link
-                to="/journal"
-                onClick={() => setOpen(false)}
-                className="heading-label text-[11px] bg-primary-foreground text-primary px-5 py-3 text-center mt-2"
-              >
-                SIGN IN
-              </Link>
+              {isLoggedIn && (
+                <button
+                  onClick={handleLogout}
+                  className="heading-label text-[11px] text-silver hover:text-primary-foreground transition-colors py-2 text-left"
+                >
+                  LOG OUT ({partnerName.toUpperCase()})
+                </button>
+              )}
             </div>
           </motion.div>
         )}
