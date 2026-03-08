@@ -1,7 +1,26 @@
+import { useNavigate } from "react-router-dom";
 import AnimatedSection from "@/components/AnimatedSection";
 import { Shield, Pause, Phone, AlertTriangle, LogOut, Lock } from "lucide-react";
+import { useAppContext } from "@/contexts/AppContext";
+import { useToast } from "@/hooks/use-toast";
 
 const SafetyCentre = () => {
+  const { activePartner, togglePause, sharedPaused, logout } = useAppContext();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const exitApp = () => {
+    logout();
+    navigate("/");
+  };
+
+  const handlePause = () => {
+    if (activePartner) {
+      togglePause(activePartner);
+      toast({ title: sharedPaused[activePartner] ? "Sharing resumed" : "Sharing paused", description: sharedPaused[activePartner] ? "Shared features are now active." : "Shared features are now paused for you." });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pt-16">
       <div className="container mx-auto px-6 py-12 lg:py-20 max-w-3xl">
@@ -11,12 +30,11 @@ const SafetyCentre = () => {
             <h1 className="heading-display text-3xl lg:text-5xl text-foreground">SAFETY CENTRE</h1>
           </div>
           <p className="font-body text-muted-foreground leading-relaxed mb-10 max-w-2xl">
-            Your safety is the highest priority. If you feel unsafe at any point, use the tools below. This platform does not replace emergency or professional support.
+            Your safety is the highest priority. If you feel unsafe at any point, use the tools below.
           </p>
         </AnimatedSection>
 
         <div className="space-y-6">
-          {/* Emergency */}
           <AnimatedSection>
             <div className="border-4 border-destructive p-6 lg:p-8">
               <div className="flex items-center gap-3 mb-4">
@@ -24,52 +42,36 @@ const SafetyCentre = () => {
                 <h2 className="heading-display text-xl text-foreground">GET HELP NOW</h2>
               </div>
               <p className="font-body text-foreground leading-relaxed mb-4">
-                If you are in immediate danger, please contact emergency services or a crisis helpline.
+                If you are in immediate danger, please contact emergency services.
               </p>
-              <div className="space-y-2">
-                <a href="tel:000" className="heading-label text-sm bg-destructive text-destructive-foreground px-6 py-3 inline-flex items-center gap-2 hover:opacity-90 transition-opacity">
-                  EMERGENCY: 000
+              <div className="flex flex-wrap gap-3">
+                <a href="tel:111" className="heading-label text-sm bg-destructive text-destructive-foreground px-6 py-3 inline-flex items-center gap-2 hover:opacity-90 transition-opacity">
+                  CALL 111
                 </a>
-                <p className="font-body text-muted-foreground text-sm">
-                  1800RESPECT: 1800 737 732 · Lifeline: 13 11 14 · Beyond Blue: 1300 22 4636
+                <a href="sms:1737" className="heading-label text-sm bg-destructive text-destructive-foreground px-6 py-3 inline-flex items-center gap-2 hover:opacity-90 transition-opacity">
+                  TEXT 1737
+                </a>
+              </div>
+            </div>
+          </AnimatedSection>
+
+          {activePartner && (
+            <AnimatedSection>
+              <div className="card-bordered p-6 lg:p-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <Pause size={20} className="text-foreground" />
+                  <h2 className="heading-display text-xl text-foreground">PAUSE SHARED FEATURES</h2>
+                </div>
+                <p className="font-body text-muted-foreground leading-relaxed mb-4">
+                  Temporarily disable the shared couple room. Your private journal remains available.
                 </p>
+                <button onClick={handlePause} className="heading-label text-sm border-[3px] border-foreground text-foreground px-6 py-3 hover:bg-primary hover:text-primary-foreground transition-colors">
+                  {sharedPaused[activePartner] ? "RESUME SHARING" : "PAUSE SHARING"}
+                </button>
               </div>
-            </div>
-          </AnimatedSection>
+            </AnimatedSection>
+          )}
 
-          {/* Pause */}
-          <AnimatedSection>
-            <div className="card-bordered p-6 lg:p-8">
-              <div className="flex items-center gap-3 mb-4">
-                <Pause size={20} className="text-foreground" />
-                <h2 className="heading-display text-xl text-foreground">PAUSE SHARED FEATURES</h2>
-              </div>
-              <p className="font-body text-muted-foreground leading-relaxed mb-4">
-                Temporarily disable the shared couple room and guided conversations. Your private journal remains available. Your partner will be notified that shared features are paused — no reason given.
-              </p>
-              <button className="heading-label text-sm border-[3px] border-foreground text-foreground px-6 py-3 hover:bg-primary hover:text-primary-foreground transition-colors">
-                PAUSE SHARING
-              </button>
-            </div>
-          </AnimatedSection>
-
-          {/* Individual mode */}
-          <AnimatedSection>
-            <div className="card-bordered p-6 lg:p-8">
-              <div className="flex items-center gap-3 mb-4">
-                <Lock size={20} className="text-foreground" />
-                <h2 className="heading-display text-xl text-foreground">INDIVIDUAL-ONLY MODE</h2>
-              </div>
-              <p className="font-body text-muted-foreground leading-relaxed mb-4">
-                Switch to individual-only mode. All shared features are disabled and your journal is fully private. You can re-enable shared features when you're ready.
-              </p>
-              <button className="heading-label text-sm border-[3px] border-foreground text-foreground px-6 py-3 hover:bg-primary hover:text-primary-foreground transition-colors">
-                ENABLE INDIVIDUAL MODE
-              </button>
-            </div>
-          </AnimatedSection>
-
-          {/* Report */}
           <AnimatedSection>
             <div className="card-bordered p-6 lg:p-8">
               <div className="flex items-center gap-3 mb-4">
@@ -77,7 +79,7 @@ const SafetyCentre = () => {
                 <h2 className="heading-display text-xl text-foreground">REPORT A CONCERN</h2>
               </div>
               <p className="font-body text-muted-foreground leading-relaxed mb-4">
-                If you believe the platform is being used to coerce, manipulate, or harm, please report it. All reports are confidential.
+                If you believe the platform is being used to coerce, manipulate, or harm, please report it.
               </p>
               <button className="heading-label text-sm border-[3px] border-foreground text-foreground px-6 py-3 hover:bg-primary hover:text-primary-foreground transition-colors">
                 REPORT CONCERN
@@ -85,18 +87,17 @@ const SafetyCentre = () => {
             </div>
           </AnimatedSection>
 
-          {/* Exit */}
           <AnimatedSection>
             <div className="card-bordered p-6 lg:p-8">
               <div className="flex items-center gap-3 mb-4">
                 <LogOut size={20} className="text-foreground" />
-                <h2 className="heading-display text-xl text-foreground">EXIT WORKSPACE</h2>
+                <h2 className="heading-display text-xl text-foreground">EXIT APP</h2>
               </div>
               <p className="font-body text-muted-foreground leading-relaxed mb-4">
-                Permanently separate from this couple workspace. Your private journal data can be exported or deleted. This action cannot be undone.
+                Returns to home and clears your current session.
               </p>
-              <button className="heading-label text-sm border-[3px] border-destructive text-destructive px-6 py-3 hover:bg-destructive hover:text-destructive-foreground transition-colors">
-                EXIT & SEPARATE
+              <button onClick={exitApp} className="heading-label text-sm border-[3px] border-destructive text-destructive px-6 py-3 hover:bg-destructive hover:text-destructive-foreground transition-colors">
+                EXIT & CLEAR SESSION
               </button>
             </div>
           </AnimatedSection>
@@ -105,7 +106,7 @@ const SafetyCentre = () => {
         <AnimatedSection>
           <div className="mt-10 bg-muted p-6 border-l-4 border-foreground">
             <p className="font-body text-foreground text-sm leading-relaxed">
-              <strong>Important:</strong> MINDCAST Relationships is not therapy, counselling, or a crisis intervention service. It is a structured relationship practice tool. If you or someone you know is in danger, please contact emergency services immediately.
+              <strong>Important:</strong> MINDCAST Relationships is not therapy, counselling, or a crisis intervention service.
             </p>
           </div>
         </AnimatedSection>

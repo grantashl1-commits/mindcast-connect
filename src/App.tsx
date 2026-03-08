@@ -6,12 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppProvider } from "@/contexts/AppContext";
 import Navbar from "./components/Navbar";
 import Index from "./pages/Index";
-import PrivateJournal from "./pages/PrivateJournal";
-import ShareCardEditor from "./pages/ShareCardEditor";
+import DashboardA from "./pages/DashboardA";
+import DashboardB from "./pages/DashboardB";
 import CoupleRoom from "./pages/CoupleRoom";
-import GuidedConversation from "./pages/GuidedConversation";
 import ModulesLibrary from "./pages/ModulesLibrary";
-import WeeklyCheckIn from "./pages/WeeklyCheckIn";
 import SafetyCentre from "./pages/SafetyCentre";
 import Membership from "./pages/Membership";
 import NotFound from "./pages/NotFound";
@@ -28,12 +26,10 @@ const App = () => (
           <Navbar />
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/journal" element={<PrivateJournal />} />
-            <Route path="/share-card" element={<ShareCardEditor />} />
+            <Route path="/dashboard-a" element={<DashboardA />} />
+            <Route path="/dashboard-b" element={<DashboardB />} />
             <Route path="/couple-room" element={<CoupleRoom />} />
-            <Route path="/guided-conversation" element={<GuidedConversation />} />
             <Route path="/modules" element={<ModulesLibrary />} />
-            <Route path="/check-in" element={<WeeklyCheckIn />} />
             <Route path="/safety" element={<SafetyCentre />} />
             <Route path="/membership" element={<Membership />} />
             <Route path="*" element={<NotFound />} />
